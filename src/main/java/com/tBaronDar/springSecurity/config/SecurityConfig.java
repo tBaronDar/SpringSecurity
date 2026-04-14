@@ -48,18 +48,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(){
-        //this is deprecated, because password is unsafe
-        UserDetails user = User.withDefaultPasswordEncoder().username("test1").password("4321").roles("USER").build();
-
-        //this is how to encode the password
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        UserDetails admin= User.withUsername("test").password(encoder.encode("1234")).roles("ADMIN").build();
-
-        return new InMemoryUserDetailsManager(admin, user);
-    }
-
-    @Bean
     public AuthenticationProvider authProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         return provider;
