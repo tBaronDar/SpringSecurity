@@ -1,6 +1,7 @@
 package com.tBaronDar.springSecurity.service;
 
 import com.tBaronDar.springSecurity.model.User;
+import com.tBaronDar.springSecurity.model.UserPrincipal;
 import com.tBaronDar.springSecurity.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,6 @@ public class MyUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User 404");
         }
 
-        return null;
+        return new UserPrincipal(u);
     }
 }
