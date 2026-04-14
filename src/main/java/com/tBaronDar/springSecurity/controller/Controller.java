@@ -1,4 +1,4 @@
-package com.tBaronDar.springSecurity;
+package com.tBaronDar.springSecurity.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;

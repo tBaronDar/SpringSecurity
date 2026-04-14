@@ -1,4 +1,4 @@
-package com.tBaronDar.springSecurity;
+package com.tBaronDar.springSecurity.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
