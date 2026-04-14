@@ -8,6 +8,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Step 4:
+ * This class implements UserDetails
+ * additionally it has a constructor that
+ * sets the user passed from the service
+ * as the current user and is used in the
+ * methods below
+ */
 public class UserPrincipal implements UserDetails {
     private User user;
 
@@ -15,6 +23,7 @@ public class UserPrincipal implements UserDetails {
         this.user=user;
     }
 
+    //the authorities method below is hardcoded because there is no relevant field in the table
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(new SimpleGrantedAuthority("USER"));
