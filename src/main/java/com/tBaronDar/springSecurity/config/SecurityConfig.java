@@ -43,7 +43,10 @@ public class SecurityConfig {
         //disable csrf(session)
         http.csrf(customizer -> customizer.disable());
         //all requests must be authenticated
-        http.authorizeHttpRequests(req -> req.anyRequest().authenticated());
+        http.authorizeHttpRequests(req -> req
+                //exept register that is un protected
+                .requestMatchers("register").permitAll()
+                .anyRequest().authenticated());
         //enable the default login form(dont need in stateless)
         //http.formLogin(Customizer.withDefaults());
         //type of security == basic
