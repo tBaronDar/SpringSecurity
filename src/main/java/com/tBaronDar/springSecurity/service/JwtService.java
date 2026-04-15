@@ -1,5 +1,6 @@
 package com.tBaronDar.springSecurity.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,17 +15,18 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
-    //Hardcoding secret key
+    //Hardcoding secret key(not used here...)
     private static final String SECRET = "louleti1=\r\n";
-
     private String secretKey;
 
-    public JwtService(){
-        this.secretKey=generateSecretKey();
+    public JwtService() {
+        this.secretKey = generateSecretKey();
     }
+
     //generating a secret key
     public String generateSecretKey() {
         try {
@@ -36,6 +38,12 @@ public class JwtService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error generationg secret key. ", e);
         }
+    }
+
+    //turn String to Key
+    private Key getKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String username) {
@@ -50,16 +58,47 @@ public class JwtService {
                 .compact();
     }
 
-    private Key getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
+    /**
+     * 3: public are the methods that are
+     * required elsewhere the rest are private
+     */
     public String extractUserName(String token) {
-        return "";
+        //pass the token and a particular method from Claims
+        return extractClaim(token, Claims::getSubject);
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        return true;
+        final String userName = extractUserName(token);
+        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        //pass the token and a particular method from Claims
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    /**
+     * 1: create a method that extracts all Claims
+     * TODO use not deprecated methods...
+     */
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getPayload();
+    }
+
+    /**
+     * 2: Create a method gets specific claim from claims,
+     * use resolver to select a specific claim
+     */
+    private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimResolver.apply(claims);
     }
 }
