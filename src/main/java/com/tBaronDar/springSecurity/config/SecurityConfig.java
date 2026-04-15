@@ -3,12 +3,15 @@ package com.tBaronDar.springSecurity.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,7 +28,7 @@ public class SecurityConfig {
      * interface. Here see MyUserDetailsService
      */
     @Autowired
-    private  UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
     /**
      * Step 0:
@@ -45,7 +48,7 @@ public class SecurityConfig {
         //all requests must be authenticated
         http.authorizeHttpRequests(req -> req
                 //exept register that is un protected
-                .requestMatchers("register").permitAll()
+                .requestMatchers("/register", "/login").permitAll()
                 .anyRequest().authenticated());
         //enable the default login form(dont need in stateless)
         //http.formLogin(Customizer.withDefaults());
@@ -65,11 +68,20 @@ public class SecurityConfig {
      * no password encoding in this case.
      * steps 1a and 1b is the creation of User model
      * and UserRepo using data jpa
-     * */
+     *
+     */
     @Bean
-    public AuthenticationProvider authProvider(){
+    public AuthenticationProvider authProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         return provider;
+    }
+
+    /**
+     * JWT
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration){
+        return configuration.getAuthenticationManager();
     }
 }
